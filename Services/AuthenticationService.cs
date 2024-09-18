@@ -38,9 +38,11 @@ public class AuthenticationService : IAuthenticationService
             new KeyValuePair<string, string>("client_secret", _authSettings.ClientSecret),
             new KeyValuePair<string, string>("code", code),
             new KeyValuePair<string, string>("redirect_uri", _authSettings.RedirectUri),
+            new KeyValuePair<string, string>("audience", _authSettings.Audience),
             new KeyValuePair<string, string>("grant_type", "authorization_code")
             
         }));
+        
 
         if (response.IsSuccessStatusCode)
         {
