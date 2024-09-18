@@ -1,7 +1,24 @@
 ﻿@page "/"
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.Extensions.Options
+@using VirtualStoreApp.Services
+@inject IOptions<AuthSettings> AuthOptions
 
-<PageTitle>Home</PageTitle>
+<CascadingAuthenticationState>
 
-<h1>Hello, world!</h1>
+    <AuthorizeView>
+        <Authorized>
+            <h3>Welcome to CarParts!</h3>
+            <p>Please take home this amazing parts</p>
+        </Authorized>
 
-Welcome to your new app.
+        <NotAuthorized>
+            <h3>Please login first</h3>
+            <p>
+                <a href="https://@AuthOptions.Value.Domain/authorize?client_id=@AuthOptions.Value.ClientId&
+response_type=code&redirect_uri=@AuthOptions.Value.RedirectUri">Login</a>
+            </p>
+        </NotAuthorized>
+    </AuthorizeView>
+
+</CascadingAuthenticationState>

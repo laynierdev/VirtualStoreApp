@@ -1,0 +1,38 @@
+﻿@page "/callback"
+@using VirtualStoreApp.Services
+@inject NavigationManager Navigation
+@inject HttpClient Http
+@inject IAuthenticationService AuthService
+
+<h3>Processing auth...</h3>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        var uri = Navigation.ToAbsoluteUri(Navigation.Uri);
+        var code = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query)["code"];
+
+        if (!string.IsNullOrEmpty(code))
+        {
+            // get token from code
+            var token = await AuthService.ExchangeCodeForTokenAsync(code);
+
+            if (token != null)
+            {
+                // Save token to cookie
+                AuthService.SetToken(token);
+                Navigation.NavigateTo("/");
+            }
+            else
+            {
+                // Handle error if not token obtained
+                Navigation.NavigateTo("/error");
+            }
+        }
+        else
+        {
+            // Manejar el caso donde no se recibe un código
+            Navigation.NavigateTo("/error");
+        }
+    }
+}
