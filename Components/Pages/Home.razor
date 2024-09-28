@@ -4,21 +4,7 @@
 @using VirtualStoreApp.Services
 @inject IOptions<AuthSettings> AuthOptions
 
-<CascadingAuthenticationState>
 
-    <AuthorizeView>
-        <Authorized>
-            <h3>Welcome to CarParts!</h3>
-            <p>Please take home this amazing parts</p>
-        </Authorized>
+            <h3>Welcome to CarParts Server</h3>
 
-        <NotAuthorized>
-            <h3>Please login first</h3>
-            <p>
-                <a href="https://@AuthOptions.Value.Domain/authorize?client_id=@AuthOptions.Value.ClientId&
-response_type=code&redirect_uri=@AuthOptions.Value.RedirectUri">Login</a>
-            </p>
-        </NotAuthorized>
-    </AuthorizeView>
 
-</CascadingAuthenticationState>

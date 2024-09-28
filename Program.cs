@@ -59,8 +59,21 @@ builder.Services.AddHttpClient<IAuthenticationService, AuthenticationService>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddAuthorizationCore();
 
+var corsAllowedOrigin = string.IsNullOrEmpty(builder.Configuration["Cors:AllowedOrigin"]) 
+    ? "AllowAll" 
+    : builder.Configuration["Cors:AllowedOrigin"];
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowSpecificOrigin",
+        builder => builder.WithOrigins(corsAllowedOrigin)
+            .AllowAnyMethod()
+            .AllowAnyHeader());
+});
+builder.Services.AddControllers();
 var app = builder.Build();
 app.UseRouting();
+
+app.UseCors("AllowSpecificOrigin");
 app.UseAuthentication();
 app.UseAuthorization();
 
@@ -77,5 +90,5 @@ app.UseAntiforgery();
 
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
-
+app.MapControllers();
 app.Run();
