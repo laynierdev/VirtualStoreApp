@@ -55,6 +55,8 @@ builder.Services.Configure<AuthSettings>(builder.Configuration.GetSection("Auth0
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 builder.Services.AddHttpClient<IAuthenticationService, AuthenticationService>();
+builder.Services.AddHttpClient<IProductService, ProductService>();
+
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddAuthorizationCore();

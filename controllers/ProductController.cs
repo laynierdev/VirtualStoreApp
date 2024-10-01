@@ -1,17 +1,22 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using VirtualStoreApp.Models;
+using VirtualStoreApp.Services;
 
 namespace VirtualStoreApp.controllers;
 
 [ApiController]
 [Route("server/[controller]")]
+
 public class ProductController : ControllerBase
 {
     private readonly IWebHostEnvironment _environment;
+    private readonly IProductService _productService;
+ 
 
-    public ProductController(IWebHostEnvironment environment)
+    public ProductController(IWebHostEnvironment environment, IProductService productService)
     {
         _environment = environment;
+        _productService = productService;
     }
 
     [HttpPost("create")]
@@ -25,6 +30,13 @@ public class ProductController : ControllerBase
         if (product.Image != null && product.Image.Length > 0)
         {
             var uploadsFolder = Path.Combine(_environment.WebRootPath, "uploads");
+
+            // Verifica si el directorio existe, si no, lo crea
+            if (!Directory.Exists(uploadsFolder))
+            {
+                Directory.CreateDirectory(uploadsFolder);
+            }
+
             var uniqueFileName = Guid.NewGuid().ToString() + "_" + product.Image.FileName;
             var filePath = Path.Combine(uploadsFolder, uniqueFileName);
 
@@ -35,12 +47,22 @@ public class ProductController : ControllerBase
 
             imageUrl = $"/uploads/{uniqueFileName}";
         }
+
         product.ImageUrl = imageUrl;
+        
+        //call service to store product
+       var result = await _productService.CreateProductAsync(product);
 
-        // Lógic to save to database by
-        //calling a service to make a post to api/product
+       if (result)
+       {
+            return Ok(product); 
+       }
+       else
+       {
+           return BadRequest("Product could not be created.");
+       }
 
-        return Ok(product);
+      
     }
     
     [HttpGet("test")]
