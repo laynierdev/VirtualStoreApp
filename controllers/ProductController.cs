@@ -53,17 +53,27 @@ public class ProductController : ControllerBase
         //call service to store product
        var result = await _productService.CreateProductAsync(product);
 
-       if (result)
-       {
-            return Ok(product); 
-       }
-       else
-       {
-           return BadRequest("Product could not be created.");
-       }
-
-      
+       if (result.Success) return Ok(product); 
+       return BadRequest($"Product could not be created. {result.Message}");
     }
+    
+    /**
+     * To obtain all products
+     * TODO surround of try-catch critic code
+     */
+    [HttpGet("products-list")]
+    public async Task<ActionResult<IEnumerable<Product>>> GetProducts()
+    {
+        var products = await _productService.GetProductsAsync();
+    
+        if (products == null || !products.Any())
+        {
+            return NotFound("No products found.");
+        }
+
+        return Ok(products);
+    }
+
     
     [HttpGet("test")]
     public IActionResult TestEndpoint()

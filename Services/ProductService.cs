@@ -5,7 +5,9 @@ namespace VirtualStoreApp.Services;
 // IProductService.cs
 public interface IProductService
 {
-    Task<bool> CreateProductAsync(Product product);
+    Task<ApiResponse<Product>> CreateProductAsync(Product product);
+    Task<IEnumerable<Product>> GetProductsAsync();
+
 }
 
 // ProductService.cs
@@ -20,9 +22,62 @@ public class ProductService : IProductService
         _apiUrl = configuration["Api:ApiUrl"]  ?? throw new ArgumentNullException("ApiUrl not configured.");;
     }
 
-    public async Task<bool> CreateProductAsync(Product product)
-    {
-        var response = await _httpClient.PostAsJsonAsync($"{_apiUrl}/api/product", product);
-        return response.IsSuccessStatusCode;
+    /**
+     * Create one product by calling service
+     * 
+     */
+    public async Task<ApiResponse<Product>> CreateProductAsync(Product product){
+        try
+        {
+            var response = await _httpClient.PostAsJsonAsync($"{_apiUrl}/api/product", product);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var createdProduct = await response.Content.ReadFromJsonAsync<Product>();
+                return new ApiResponse<Product>
+                {
+                    Success = true,
+                    Data = createdProduct,
+                    Message = "Producto creado con éxito."
+                };
+            }
+            else
+            {
+                var errorMessage = await response.Content.ReadAsStringAsync();
+                return new ApiResponse<Product>
+                {
+                    Success = false,
+                    Message = $"Error al crear el producto: {errorMessage}"
+                };
+            }
+        }
+        catch (Exception ex)
+        {
+            return new ApiResponse<Product>
+            {
+                Success = false,
+                Message = $"Error inesperado: {ex.Message}"
+            };
+        }
     }
+
+    /**
+     * Get all products by calling service
+     * TODO exception validation
+     */
+    public async Task<IEnumerable<Product>> GetProductsAsync()
+    {
+        var response = await _httpClient.GetAsync($"{_apiUrl}/api/product");
+    
+        if (response.IsSuccessStatusCode)
+        {
+            return await response.Content.ReadFromJsonAsync<IEnumerable<Product>>() ?? Array.Empty<Product>();
+        }
+    
+        return null;
+    }
+
+    
+    
+    
 }
